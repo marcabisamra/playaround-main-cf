@@ -14,7 +14,10 @@
     "worker:deploy:prod": "npm run build && wrangler deploy --env production",
     "worker:tail": "wrangler tail",
     "worker:kv:list": "wrangler kv namespace list",
-    "setup:kv": "node scripts/setup-kv-namespaces.js"
+    "setup:kv": "node scripts/setup-kv-namespaces.js",
+    "deploy:frontend": "npm run build && wrangler pages deploy .next --project-name multi-domain-marketplace",
+    "deploy:backend": "wrangler deploy",
+    "deploy:all": "npm run build && wrangler pages deploy .next --project-name multi-domain-marketplace && wrangler deploy"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.4.0",
