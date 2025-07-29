@@ -133,7 +133,7 @@ async function setupKVNamespaces() {
     log(`   Found ${existingNamespaces.length} existing namespaces`, "cyan");
   } catch (error) {
     log(
-      "   Could not list existing namespaces, continuing with creation...",
+      "   Could not list existing namespaces, continuing with setup...",
       "yellow"
     );
   }
@@ -379,7 +379,7 @@ async function setupEnvironmentVariables() {
     "yellow"
   );
   log(
-    "This solves the chicken-and-egg problem of needing the worker URL first!",
+    "This ensures you have the correct Worker URL for OAuth callbacks!",
     "cyan"
   );
 
@@ -568,7 +568,7 @@ async function testDeployment(workerUrl) {
 }
 
 async function showNextSteps(credentials) {
-  log("\n🎉 Migration Complete!", "bright");
+  log("\n🎉 Setup Complete!", "bright");
   log("═══════════════════════════════════════════════════════════", "cyan");
 
   log("\n✅ What was set up:", "green");
@@ -589,10 +589,7 @@ async function showNextSteps(credentials) {
     log(`      • Edit OAuth client: ${credentials.googleClientId}`, "cyan");
     log("      • Add this single redirect URI:", "cyan");
     log(`        ${credentials.oauthRedirectUrl}/auth/google/callback`, "cyan");
-    log(
-      "      ✅ Just ONE redirect URI needed (same as your original Express backend)!",
-      "green"
-    );
+    log("      ✅ Just ONE redirect URI needed for all domains!", "green");
   } else if (credentials?.googleClientId) {
     log("      Google Cloud Console:", "cyan");
     log(
@@ -620,10 +617,7 @@ async function showNextSteps(credentials) {
       `        ${credentials.oauthRedirectUrl}/auth/airtable/callback`,
       "cyan"
     );
-    log(
-      "      ✅ Just ONE redirect URI needed (same as your original Express backend)!",
-      "green"
-    );
+    log("      ✅ Just ONE redirect URI needed for all domains!", "green");
   } else if (credentials?.airtableClientId) {
     log("      Airtable Developer Hub:", "cyan");
     log(
@@ -640,12 +634,10 @@ async function showNextSteps(credentials) {
   }
 
   log("\n   2. Configure custom domains:", "yellow");
-  log("      Option A - Cloudflare Pages (recommended):", "cyan");
-  log(
-    "      • wrangler pages deploy .next --project-name your-marketplace",
-    "cyan"
-  );
-  log("      • Add custom domains in Cloudflare Pages dashboard", "cyan");
+  log("      Option A - Add custom domains to your Worker:", "cyan");
+  log("      • Go to Cloudflare Dashboard → Workers & Pages", "cyan");
+  log("      • Click on your worker → Settings → Triggers", "cyan");
+  log("      • Add custom domains for each seller domain", "cyan");
   log("      ", "cyan");
   log("      Option B - Cloudflare for SaaS (enterprise):", "cyan");
   log("      • Contact Cloudflare sales for unlimited domains", "cyan");
@@ -657,8 +649,8 @@ async function showNextSteps(credentials) {
   log("      • Value: your-worker.workers.dev", "cyan");
 
   log("\n📚 Resources:", "blue");
-  log("   • Setup Guide: CLOUDFLARE_SETUP.md", "cyan");
-  log("   • Migration Details: MIGRATION_COMPLETE.md", "cyan");
+  log("   • Setup Guide: SETUP_GUIDE.md", "cyan");
+  log("   • Manual Setup: CLOUDFLARE_SETUP.md", "cyan");
   log(
     "   • Cloudflare Docs: https://developers.cloudflare.com/workers/",
     "cyan"
@@ -668,15 +660,15 @@ async function showNextSteps(credentials) {
     "\n🚀 Your marketplace is now running on Cloudflare's global edge network!",
     "bright"
   );
-  log("   • 10x better performance", "green");
-  log("   • 10x lower costs", "green");
-  log("   • Unlimited scalability", "green");
+  log("   • <1ms response times globally", "green");
+  log("   • Pay only for requests (10x cheaper)", "green");
+  log("   • Automatic scaling to any traffic level", "green");
   log("   • Built-in DDoS protection", "green");
 
   log("\n💡 Quick commands:", "magenta");
   log("   • View logs: wrangler tail", "cyan");
-  log("   • Deploy updates: npm run worker:deploy", "cyan");
-  log("   • Local development: npm run worker:dev", "cyan");
+  log("   • Deploy updates: npm run deploy", "cyan");
+  log("   • Local development: wrangler dev", "cyan");
 
   // Save setup summary
   const summary = {
@@ -684,6 +676,7 @@ async function showNextSteps(credentials) {
     status: "completed",
     worker_deployed: true,
     credentials_configured: !!credentials,
+    architecture: "pure-cloudflare-workers",
     next_steps: [
       "Update OAuth redirect URIs",
       "Configure custom domains",
@@ -692,16 +685,16 @@ async function showNextSteps(credentials) {
     ],
   };
 
-  fs.writeFileSync("migration-summary.json", JSON.stringify(summary, null, 2));
-  log("\n📄 Migration summary saved to migration-summary.json", "cyan");
+  fs.writeFileSync("setup-summary.json", JSON.stringify(summary, null, 2));
+  log("\n📄 Setup summary saved to setup-summary.json", "cyan");
 }
 
 async function main() {
   try {
-    log("🚀 Cloudflare Workers Migration Script", "bright");
+    log("🚀 Cloudflare Workers Marketplace Setup", "bright");
     log("════════════════════════════════════════", "cyan");
     log(
-      "This script will migrate your marketplace to pure Cloudflare Workers",
+      "This script will set up your multi-domain marketplace on Cloudflare Workers",
       "cyan"
     );
 
@@ -714,7 +707,7 @@ async function main() {
     await testDeployment(workerUrl);
     await showNextSteps({ ...credentials, ...oauthConfig });
   } catch (error) {
-    log(`\n❌ Migration failed: ${error.message}`, "red");
+    log(`\n❌ Setup failed: ${error.message}`, "red");
     process.exit(1);
   } finally {
     rl.close();
@@ -723,12 +716,12 @@ async function main() {
 
 // Handle Ctrl+C gracefully
 process.on("SIGINT", () => {
-  log("\n\n🛑 Migration cancelled by user", "yellow");
+  log("\n\n🛑 Setup cancelled by user", "yellow");
   rl.close();
   process.exit(0);
 });
 
-// Run the migration
+// Run the setup
 main().catch((error) => {
   log(`\n❌ Unexpected error: ${error.message}`, "red");
   process.exit(1);

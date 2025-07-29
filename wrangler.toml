@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 
 # Workers Sites configuration for serving Next.js static files
 [site]
-bucket = ".next/static"
+bucket = ".next"
 
 # KV Namespaces for data storage
 [[kv_namespaces]]

@@ -1,8 +1,8 @@
-# Cloudflare Workers Migration Guide
+# Cloudflare Workers Setup Guide
 
-This guide will help you migrate your multi-domain authentication system from Vercel + Express to pure Cloudflare Workers.
+This guide will help you manually set up your multi-domain marketplace on pure Cloudflare Workers.
 
-## 🎯 Benefits of Migration
+## 🎯 Why Cloudflare Workers?
 
 - **10x Better Performance**: <1ms cold starts vs 100-500ms on Vercel
 - **5-10x Lower Costs**: Pay per request instead of server time
@@ -18,7 +18,7 @@ This guide will help you migrate your multi-domain authentication system from Ve
 3. **Node.js 18+**: For local development
 4. **Git**: For version control
 
-## 🚀 Migration Steps
+## 🚀 Setup Steps
 
 ### Step 1: Install Wrangler and Login
 
@@ -147,25 +147,23 @@ wrangler deploy --env production
 
 ### Step 8: Configure Custom Domains
 
-#### Option A: Cloudflare Pages (Recommended for most users)
+#### Option A: Worker Custom Domains (Recommended)
 
-1. **Upload your site to Cloudflare Pages**:
+1. **Add custom domains via Cloudflare Dashboard**:
 
+   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+   - Navigate to **Workers & Pages**
+   - Click on your **multi-domain-marketplace** worker
+   - Go to **Settings** → **Triggers**
+   - Click **Add Custom Domain**
+   - Add each seller domain (e.g., `site1.com`, `site2.com`)
+
+2. **Or add domains via CLI**:
    ```bash
-   # Build your Next.js app for static export
-   npm run build
-   npm run export  # Add this script to package.json if needed
-
-   # Upload to Cloudflare Pages via dashboard or CLI
-   wrangler pages deploy out --project-name your-marketplace
+   # Add custom domains to your worker
+   wrangler route add "yourdomain.com/*" multi-domain-marketplace
+   wrangler route add "anotherdomain.com/*" multi-domain-marketplace
    ```
-
-2. **Add custom domains**:
-   - Go to Cloudflare Pages dashboard
-   - Click on your project
-   - Go to "Custom domains" tab
-   - Add each seller domain
-   - Update DNS records as instructed
 
 #### Option B: Cloudflare for SaaS (Enterprise solution)
 
@@ -191,7 +189,7 @@ For each custom domain, update DNS to point to Cloudflare:
 ```
 Type: CNAME
 Name: @  (or subdomain)
-Value: your-worker.workers.dev  (or Pages domain)
+Value: your-worker.workers.dev
 ```
 
 ## 📊 Performance Comparison

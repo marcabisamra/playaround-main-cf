@@ -1,26 +1,46 @@
-# Multi-Domain Marketplace with Cloudflare Workers
+# Multi-Domain Marketplace on Cloudflare Workers
 
-This project demonstrates a **pure Cloudflare Workers** implementation of a multi-domain marketplace with centralized authentication, payment processing, and third-party integrations. Each domain maintains complete session isolation while sharing the same powerful backend infrastructure.
+A **high-performance, serverless multi-domain marketplace** built entirely on Cloudflare Workers. This architecture enables creators to sell products on custom domains with centralized authentication, payment processing, and third-party integrations - all running at the edge in 300+ locations worldwide.
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   site-1.com    │    │ Cloudflare Edge  │    │   Workers KV    │
-│   site-2.com    │───▶│    Network       │───▶│   Database      │
-│ custom-domains  │    │ (300+ locations) │    │                 │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌──────────────────────────────┐    ┌─────────────────┐
+│   site-1.com    │    │    Cloudflare Worker         │    │   Workers KV    │
+│   site-2.com    │───▶│ Static Files + API + OAuth   │───▶│   Database      │
+│ custom-domains  │    │     (300+ locations)         │    │                 │
+└─────────────────┘    └──────────────────────────────┘    └─────────────────┘
 ```
 
-### Components:
+### Core Components:
 
-1. **Frontend (Next.js + Cloudflare Pages)**: Single project serving multiple custom domains
-2. **Backend (Cloudflare Workers)**: Handles OAuth flows, payments, and API endpoints at the edge
-3. **Storage (Workers KV)**: Distributed key-value storage for sessions, products, and analytics
-4. **Third-party Integrations**:
-   - **Google Sheets** (OAuth-based)
-   - **Airtable** (OAuth-based with API key fallback)
-   - **Stripe** (Full payment processing and subscriptions)
+1. **Pure Cloudflare Workers**: Single service handling static files, API endpoints, OAuth flows, and payment processing
+2. **Workers KV**: Distributed key-value storage for sessions, products, orders, and OAuth states
+3. **Multi-Domain Support**: Each custom domain maintains isolated sessions while sharing backend infrastructure
+4. **Edge Computing**: Sub-millisecond response times globally with automatic scaling
+
+## 🎯 Perfect For
+
+- **Creator Marketplaces**: Like Gumroad, enabling creators to sell on custom domains
+- **White-Label Platforms**: Branded experiences for different customers
+- **SaaS Multi-Tenancy**: Isolated data per domain with shared infrastructure
+- **Global Marketplaces**: Low-latency worldwide with automatic scaling
+- **High-Traffic Sites**: Zero server management with infinite scalability
+
+## ⚡ Performance Benefits
+
+- **<1ms Cold Starts**: Instant response times globally
+- **300+ Edge Locations**: Your code runs everywhere
+- **No Server Management**: Zero infrastructure overhead
+- **Auto-Scaling**: Handles traffic spikes automatically
+- **Built-in CDN**: Free content delivery and DDoS protection
+
+## 💰 Cost Benefits
+
+- **Pay-Per-Request**: No idle server costs
+- **10x Cheaper**: Compared to traditional server hosting
+- **No Backend Servers**: Eliminate hosting costs entirely
+- **Included Features**: SSL, CDN, and DDoS protection at no extra cost
 
 ## 🚀 Quick Start
 
@@ -37,85 +57,31 @@ wrangler login
 wrangler whoami
 ```
 
-### 2. Setup Project
+### 2. Automated Setup
 
 ```bash
-# Clone repository (if not already done)
+# Clone and setup
 git clone <your-repo>
 cd multi-domain-marketplace
 
-# Install dependencies
-npm install
-
-# Set up KV namespaces automatically
-npm run setup:kv
+# Run automated setup (recommended)
+npm run setup
 ```
 
-### 3. Configure Environment Variables
+The setup script will automatically:
 
-```bash
-# Google OAuth (required)
-wrangler secret put GOOGLE_CLIENT_ID
-wrangler secret put GOOGLE_CLIENT_SECRET
+- ✅ Install dependencies and Wrangler CLI
+- ✅ Create all required KV namespaces
+- ✅ Configure environment variables interactively
+- ✅ Build and deploy your Worker
+- ✅ Set up OAuth redirect URLs
+- ✅ Provide exact next steps
 
-# JWT Secret (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-wrangler secret put JWT_SECRET
+### 3. Manual Setup (Optional)
 
-# Stripe (for payments)
-wrangler secret put STRIPE_SECRET_KEY
-wrangler secret put STRIPE_PUBLISHABLE_KEY
-
-# Airtable OAuth (optional)
-wrangler secret put AIRTABLE_CLIENT_ID
-wrangler secret put AIRTABLE_CLIENT_SECRET
-```
-
-### 4. Deploy to Cloudflare
-
-```bash
-# Deploy to development
-npm run worker:deploy
-
-# Deploy to production
-npm run worker:deploy:prod
-```
-
-### 5. Configure Custom Domains
-
-See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md) for detailed domain configuration instructions.
-
-## 🎯 Why Cloudflare Workers?
-
-### Performance Benefits
-
-- **<1ms Cold Starts**: Instant response times globally
-- **300+ Edge Locations**: Your code runs everywhere
-- **No Server Management**: Zero infrastructure overhead
-
-### Cost Benefits
-
-- **10x Cheaper**: Pay only for requests, not idle time
-- **No Backend Server**: Eliminate Express.js hosting costs
-- **Included Bandwidth**: Free CDN and DDoS protection
-
-### Scalability Benefits
-
-- **Unlimited Domains**: Add custom domains instantly
-- **Auto-scaling**: Handles traffic spikes automatically
-- **Global Distribution**: Low latency worldwide
+If you prefer manual setup, see [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md) for detailed instructions.
 
 ## 🔧 Configuration
-
-### KV Namespaces
-
-The system uses four KV namespaces:
-
-| Namespace       | Purpose                      | TTL        |
-| --------------- | ---------------------------- | ---------- |
-| `USER_SESSIONS` | JWT tokens and user sessions | 24 hours   |
-| `PRODUCTS`      | Stripe product metadata      | Permanent  |
-| `ORDERS`        | Order history and analytics  | Permanent  |
-| `OAUTH_STATES`  | OAuth flow state management  | 10 minutes |
 
 ### Environment Variables
 
@@ -130,39 +96,34 @@ The system uses four KV namespaces:
 | `AIRTABLE_CLIENT_ID`     | ❌       | Airtable OAuth (optional)     |
 | `AIRTABLE_CLIENT_SECRET` | ❌       | Airtable OAuth (optional)     |
 
-## 🔐 Authentication Flows
+### KV Namespaces
 
-### Google OAuth (Primary Authentication)
+| Namespace       | Purpose                      | TTL        |
+| --------------- | ---------------------------- | ---------- |
+| `USER_SESSIONS` | JWT tokens and user sessions | 24 hours   |
+| `PRODUCTS`      | Stripe product metadata      | Permanent  |
+| `ORDERS`        | Order history and analytics  | Permanent  |
+| `OAUTH_STATES`  | OAuth flow state management  | 10 minutes |
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Domain as site-1.com
-    participant Worker as Cloudflare Worker
-    participant KV as Workers KV
-    participant Google
-
-    User->>Domain: Click "Login with Google"
-    Domain->>Worker: GET /auth/google?return_domain=site-1.com
-    Worker->>Google: Redirect to OAuth
-    Google->>User: Show consent screen
-    User->>Google: Approve permissions
-    Google->>Worker: Callback with auth code
-    Worker->>Google: Exchange code for tokens
-    Worker->>Worker: Create domain-specific JWT
-    Worker->>KV: Store session data
-    Worker->>Domain: Redirect with JWT token
-    Domain->>Domain: Store token in localStorage
-```
+## 🔐 Authentication Architecture
 
 ### Domain Isolation
 
-Each domain gets its own isolated session:
+Each domain maintains completely isolated sessions:
 
 - ✅ Login on `site-1.com` ≠ logged in on `site-2.com`
-- ✅ JWTs contain domain binding
+- ✅ JWTs contain domain-specific binding
 - ✅ Session data stored per domain
 - ✅ No cross-domain session sharing
+
+### Single OAuth Redirect
+
+All domains use the same Worker URL for OAuth callbacks:
+
+- **Google OAuth**: `https://your-worker.workers.dev/auth/google/callback`
+- **Airtable OAuth**: `https://your-worker.workers.dev/auth/airtable/callback`
+
+This simplifies OAuth app configuration - you only need **one redirect URI** per provider.
 
 ## 🛠️ API Endpoints
 
@@ -173,8 +134,9 @@ Each domain gets its own isolated session:
 - `GET /auth/airtable` - Initiate Airtable OAuth
 - `GET /auth/airtable/callback` - Handle Airtable callback
 - `POST /api/verify-token` - Validate JWT tokens
+- `POST /api/logout` - Clear sessions
 
-### Integrations
+### Third-Party Integrations
 
 - `POST /api/sheets/create` - Create Google Sheets
 - `POST /api/airtable/bases` - List Airtable bases
@@ -188,6 +150,9 @@ Each domain gets its own isolated session:
 - `POST /api/stripe/products` - List domain products
 - `POST /api/stripe/create-payment-intent` - Process payments
 - `POST /api/stripe/create-subscription` - Handle subscriptions
+- `GET /api/stripe/subscriptions` - List subscriptions
+- `POST /api/stripe/cancel-subscription` - Cancel subscriptions
+- `GET /api/stripe/analytics` - Get analytics data
 
 ## 📁 Project Structure
 
@@ -201,29 +166,45 @@ Each domain gets its own isolated session:
 │   ├── components/
 │   │   ├── AuthComponent.tsx    # Authentication UI
 │   │   ├── AirtableForm.tsx     # Airtable integration
-│   │   └── StripeComponent.tsx  # Payment processing
+│   │   ├── StripeComponent.tsx  # Payment processing
+│   │   └── GlobalDataComponent.tsx # Global data management
 │   └── utils/
 │       └── indexedDB.ts         # Client-side storage
 ├── scripts/
 │   └── setup-kv-namespaces.js  # Automated KV setup
 ├── wrangler.toml                # Cloudflare configuration
-├── CLOUDFLARE_SETUP.md          # Detailed setup guide
+├── setup-cloudflare.js          # Automated setup script
+├── CLOUDFLARE_SETUP.md          # Manual setup guide
+├── SETUP_GUIDE.md               # Quick setup instructions
 └── README.md                    # This file
 ```
 
-## 🚀 Development
+## 🚀 Development Workflow
 
 ### Local Development
 
 ```bash
-# Start Next.js development server
+# Start Next.js development server (frontend only)
 npm run dev
 
-# Start Cloudflare Worker development server
-npm run worker:dev
+# Start full Worker with static files + API
+wrangler dev
 
-# View real-time logs
-npm run worker:tail
+# View real-time Worker logs
+wrangler tail
+```
+
+### Deployment
+
+```bash
+# Deploy everything (recommended)
+npm run deploy
+
+# Deploy to production environment
+npm run deploy:prod
+
+# Deploy with Wrangler directly
+wrangler deploy
 ```
 
 ### Testing Multi-Domain Locally
@@ -237,40 +218,56 @@ curl -H "Host: testdomain.com" http://localhost:8787/
 # 127.0.0.1 testdomain2.local
 ```
 
-## 📊 Performance Monitoring
+## 🌐 Custom Domain Setup
 
-### Built-in Analytics
+### Via Cloudflare Dashboard
+
+1. Go to **Cloudflare Dashboard** → **Workers & Pages**
+2. Click on your **multi-domain-marketplace** worker
+3. Go to **Settings** → **Triggers**
+4. Click **Add Custom Domain**
+5. Add each seller domain (e.g., `site1.com`, `site2.com`)
+
+### Via CLI
+
+```bash
+# Add custom domains to your worker
+wrangler route add "yourdomain.com/*" multi-domain-marketplace
+wrangler route add "anotherdomain.com/*" multi-domain-marketplace
+```
+
+### DNS Configuration
+
+For each custom domain:
+
+```
+Type: CNAME
+Name: @ (or subdomain)
+Value: your-worker.workers.dev
+```
+
+## 📊 Built-in Analytics
 
 Cloudflare provides comprehensive analytics:
 
-- Request volume and performance
+- Request volume and performance metrics
 - Error rates and status codes
 - Geographic distribution
 - Cache hit ratios
 
-### Custom Metrics
+### Custom Business Metrics
 
 ```javascript
-// Track business metrics in Workers
+// Track business events in your Worker
 await env.ANALYTICS.put(
   `metric:${domain}:${event}`,
   JSON.stringify({
     timestamp: Date.now(),
     value: amount,
-    user: userId,
+    userId: userId,
   })
 );
 ```
-
-## 🎯 Use Cases
-
-This architecture is perfect for:
-
-- **SaaS Marketplaces**: Like Gumroad, enabling creators to sell on custom domains
-- **White-label Platforms**: Branded experiences for different customers
-- **Multi-tenant Applications**: Isolated data and sessions per tenant
-- **Global Marketplaces**: Low-latency worldwide with edge computing
-- **High-traffic Sites**: Auto-scaling with zero server management
 
 ## 🔧 Advanced Features
 
@@ -291,7 +288,7 @@ const variant = Math.random() < 0.5 ? "A" : "B";
 const response = await handleRequest(request, variant);
 ```
 
-### Real-time Analytics
+### Real-time Event Tracking
 
 ```javascript
 await env.ANALYTICS.put(
@@ -304,14 +301,25 @@ await env.ANALYTICS.put(
 );
 ```
 
+## 💰 Cost Analysis
+
+### Estimated Monthly Costs
+
+| Traffic Level                 | Worker Requests | KV Operations | Total Cost | vs Traditional Hosting   |
+| ----------------------------- | --------------- | ------------- | ---------- | ------------------------ |
+| **Startup** (10k requests)    | $5              | $0.50         | **$5.50**  | $45-120 (87% savings)    |
+| **Growing** (100k requests)   | $5              | $2            | **$7**     | $80-200 (91% savings)    |
+| **Scale** (1M requests)       | $6.50           | $10           | **$16.50** | $200-500 (92% savings)   |
+| **Enterprise** (10M requests) | $20             | $60           | **$80**    | $1000-2000 (92% savings) |
+
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **"Namespace not found"**: Run `npm run setup:kv` to create KV namespaces
+1. **"Namespace not found"**: Run `npm run setup` to create KV namespaces
 2. **"Secret not found"**: Set secrets using `wrangler secret put VARIABLE_NAME`
 3. **OAuth errors**: Update redirect URIs in Google/Airtable consoles
-4. **Domain not working**: Check DNS CNAME records point to Cloudflare
+4. **Domain not working**: Check DNS CNAME records point to Worker
 
 ### Debug Commands
 
@@ -320,28 +328,23 @@ await env.ANALYTICS.put(
 wrangler tail
 
 # List KV namespaces
-wrangler kv:namespace list
+wrangler kv namespace list
 
-# Check secret values (they won't show the actual value)
+# Check secret values
 wrangler secret list
+
+# Test Worker locally
+wrangler dev
 ```
 
-## 💰 Cost Comparison
+## 📚 Additional Resources
 
-| Metric                  | Vercel + Express | Cloudflare Workers |
-| ----------------------- | ---------------- | ------------------ |
-| Monthly Base Cost       | $20-50           | $5                 |
-| Per Request             | $0.000006        | $0.000015          |
-| Backend Server          | $25-100/month    | $0                 |
-| SSL Certificates        | Manual/paid      | Free               |
-| **Total (1M requests)** | **$45-120**      | **$5-15**          |
-
-## 📚 Learn More
-
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-- [Workers KV Documentation](https://developers.cloudflare.com/workers/runtime-apis/kv/)
-- [Cloudflare for SaaS](https://developers.cloudflare.com/cloudflare-for-platforms/)
-- [Detailed Setup Guide](./CLOUDFLARE_SETUP.md)
+- **Quick Setup**: [SETUP_GUIDE.md](./SETUP_GUIDE.md)
+- **Manual Setup**: [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md)
+- **Google Sheets Integration**: [GOOGLE_SHEETS_SETUP.md](./GOOGLE_SHEETS_SETUP.md)
+- **Airtable Integration**: [AIRTABLE_OAUTH_SETUP.md](./AIRTABLE_OAUTH_SETUP.md)
+- **Cloudflare Workers Docs**: https://developers.cloudflare.com/workers/
+- **Workers KV Docs**: https://developers.cloudflare.com/workers/runtime-apis/kv/
 
 ## 🤝 Contributing
 
@@ -353,3 +356,7 @@ wrangler secret list
 ## 📄 License
 
 MIT License - Build amazing marketplaces on Cloudflare's global network! 🚀
+
+---
+
+**Ready to build your multi-domain marketplace?** Run `npm run setup` to get started in minutes!

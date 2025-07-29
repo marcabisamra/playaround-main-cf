@@ -1,5 +1,5 @@
-// Cloudflare Worker - Multi-Domain Marketplace Implementation
-// This replaces the entire Express.js backend
+// Cloudflare Worker - Multi-Domain Marketplace
+// Pure edge computing implementation with static files + API
 
 import {
   handleVerifyToken,

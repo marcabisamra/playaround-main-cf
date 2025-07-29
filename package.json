@@ -8,16 +8,15 @@
     "start": "next start",
     "lint": "next lint",
     "export": "next export",
-    "migrate": "node migrate-to-cloudflare.js",
+    "setup": "node setup-cloudflare.js",
     "worker:dev": "wrangler dev",
     "worker:deploy": "npm run build && wrangler deploy",
     "worker:deploy:prod": "npm run build && wrangler deploy --env production",
     "worker:tail": "wrangler tail",
     "worker:kv:list": "wrangler kv namespace list",
     "setup:kv": "node scripts/setup-kv-namespaces.js",
-    "deploy:frontend": "npm run build && wrangler pages deploy .next --project-name multi-domain-marketplace",
-    "deploy:backend": "wrangler deploy",
-    "deploy:all": "npm run build && wrangler pages deploy .next --project-name multi-domain-marketplace && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:prod": "npm run build && wrangler deploy --env production"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.4.0",
