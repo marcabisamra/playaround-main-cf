@@ -1,0 +1,93 @@
+name = "multi-domain-marketplace"
+main = "src/worker.js"
+compatibility_date = "2024-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Workers Sites configuration for serving Next.js static files
+[site]
+bucket = ".next/static"
+
+# KV Namespaces for data storage
+[[kv_namespaces]]
+binding = "USER_SESSIONS"
+id = "fdc959ca7e964f0c95ae754e15f968f0"
+preview_id = "f44c8eb6c8b540f58e1c047ec67db409"
+
+[[kv_namespaces]]
+binding = "PRODUCTS"
+id = "8ef35ee8cd1d4b14ac56fbd94dfb4ccb"
+preview_id = "2f2c3df51dce4191b15ad98a20ac69cd"
+
+[[kv_namespaces]]
+binding = "ORDERS"
+id = "69d16bcfc9474ae99477a4162b322a38"
+preview_id = "e704d9e914824096b2c6ae982d85b91d"
+
+[[kv_namespaces]]
+binding = "OAUTH_STATES"
+id = "e7591a898d1644adad62f10a6209b301"
+preview_id = "ed4b90834a8c472b8ee7393ff8d090d6"
+
+# Environment Variables (set these via wrangler secret put)
+# These are the variable names that will be available in your worker
+[vars]
+# Note: Secrets should be set using: wrangler secret put VARIABLE_NAME
+# Don't put actual secrets in this file!
+
+# Production environment
+[env.production]
+name = "multi-domain-marketplace-prod"
+
+[[env.production.kv_namespaces]]
+binding = "USER_SESSIONS"
+id = "fdc959ca7e964f0c95ae754e15f968f0"
+
+[[env.production.kv_namespaces]]
+binding = "PRODUCTS"
+id = "8ef35ee8cd1d4b14ac56fbd94dfb4ccb"
+
+[[env.production.kv_namespaces]]
+binding = "ORDERS"
+id = "69d16bcfc9474ae99477a4162b322a38"
+
+[[env.production.kv_namespaces]]
+binding = "OAUTH_STATES"
+id = "e7591a898d1644adad62f10a6209b301"
+
+# Development environment  
+[env.dev]
+name = "multi-domain-marketplace-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "USER_SESSIONS"
+id = "f44c8eb6c8b540f58e1c047ec67db409"
+
+[[env.dev.kv_namespaces]]
+binding = "PRODUCTS"
+id = "2f2c3df51dce4191b15ad98a20ac69cd"
+
+[[env.dev.kv_namespaces]]
+binding = "ORDERS"
+id = "e704d9e914824096b2c6ae982d85b91d"
+
+[[env.dev.kv_namespaces]]
+binding = "OAUTH_STATES"
+id = "ed4b90834a8c472b8ee7393ff8d090d6"
+
+# Custom domains configuration (for Cloudflare for SaaS)
+# Add your custom domains here once you set up Cloudflare for SaaS
+# [routes]
+# pattern = "*.yourdomain.com/*"
+# custom_domain = true
+
+# Build configuration
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+# Local development configuration
+[dev]
+ip = "127.0.0.1"
+port = 8787
+local_protocol = "http" 

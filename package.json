@@ -1,0 +1,38 @@
+{
+  "name": "multi-domain-marketplace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export",
+    "migrate": "node migrate-to-cloudflare.js",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "npm run build && wrangler deploy",
+    "worker:deploy:prod": "npm run build && wrangler deploy --env production",
+    "worker:tail": "wrangler tail",
+    "worker:kv:list": "wrangler kv namespace list",
+    "setup:kv": "node scripts/setup-kv-namespaces.js"
+  },
+  "dependencies": {
+    "@stripe/react-stripe-js": "^2.4.0",
+    "@stripe/stripe-js": "^2.4.0",
+    "next": "14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.0.0",
+    "typescript": "^5.0.0",
+    "wrangler": "^4.26.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
